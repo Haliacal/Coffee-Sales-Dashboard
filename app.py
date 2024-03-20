@@ -170,6 +170,7 @@ main = html.Div(
 )
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 
 revenue = sales
 revenue["revenue"] = revenue["unit_price"]*revenue["transaction_qty"]
@@ -318,5 +319,4 @@ def update_transactions(n_clicks, store, year, start_month, end_month):
     return f'{round(filtered['transaction_qty'].sum(),0):,}'
 
 if __name__ == '__main__':
-    app.run(debug=True, jupyter_mode='external')
-    
+    app.run(debug=True)
