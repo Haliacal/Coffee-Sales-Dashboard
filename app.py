@@ -21,8 +21,6 @@ reverse_month = {month[key]:key for key in month}
 
 sales = pd.read_excel("Coffee Shop Sales.xlsx")
 
-sales.head()
-
 stores = sales["store_location"].unique()
 years = sorted(sales["transaction_date"].apply(lambda x: x.year).unique())
 months =  list(map((lambda x: reverse_month[x-1][:3]), sorted(sales["transaction_date"].apply(lambda x: x.month).unique())))
