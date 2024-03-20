@@ -120,6 +120,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+venv
 .env
 .venv
 env/
@@ -161,3 +162,4 @@ cython_debug/
 
 *.pyc
 .DS_Store
+*.ipynb

@@ -319,4 +319,5 @@ def update_transactions(n_clicks, store, year, start_month, end_month):
     return f'{round(filtered['transaction_qty'].sum(),0):,}'
 
 if __name__ == '__main__':
+    
     app.run(debug=True)
