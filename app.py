@@ -1,4 +1,4 @@
-# %%
+
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output,State
@@ -19,7 +19,8 @@ month = {'January':0, 'February':1, 'March':2, 'April':3,'May':4, 'June':5, 'Jul
 shortHand = reverse_month = {key[:3]:month[key] for key in month}
 reverse_month = {month[key]:key for key in month}
 
-sales = pd.read_excel("Coffee Shop Sales.xlsx")
+sales = pd.read_csv("Coffee Shop Sales.csv")
+sales["transaction_date"] = pd.to_datetime(sales["transaction_date"], format="%d/%m/%Y")
 
 stores = sales["store_location"].unique()
 years = sorted(sales["transaction_date"].apply(lambda x: x.year).unique())
