@@ -17,6 +17,7 @@ day = {'Monday':0, 'Tuesday':1, 'Wednesday':2, 'Thursday':3,'Friday':4, 'Saturda
 
 month = {'January':0, 'February':1, 'March':2, 'April':3,'May':4, 'June':5, 'July':6, 'August':7, 'September':8, 'October':9, 'November':10, 'December':11}
 shortHand = reverse_month = {key[:3]:month[key] for key in month}
+revShortHand = {month[key]:key[:3] for key in month}
 reverse_month = {month[key]:key for key in month}
 
 sales = pd.read_csv("Coffee Shop Sales.csv")
@@ -48,7 +49,7 @@ CARD_TEXT_STYLE = {
 
 CARD_CONTENT_STYLE = {
     'textAlign': 'center',
-    'fontSize': '50px',
+    'fontSize': '48px',
 }
 
 # the style arguments for the main content page.
@@ -74,15 +75,8 @@ controls = dbc.Col(
         
         html.Br(),
         html.P('Range', style={'textAlign': 'center'}),
-        
-        dbc.Row(
-            [
-                dbc.Col([html.P('Start:', style={'textAlign': 'center'})], md=2),
-                dbc.Col([dcc.Dropdown(months, value=months[0], id="start_month")], md=4),
-                dbc.Col([html.P('End:', style={'textAlign': 'center'})], md=2),
-                dbc.Col([dcc.Dropdown(months, value=months[-1], id="end_month")], md=4)
-            ]
-        ),
+
+        dbc.Row([dbc.Col([dcc.RangeSlider(0, 11, step=None, marks=revShortHand, value=[0,6], allowCross=False, id="range_month")])]),
         
         html.Br(),
         html.Div(
@@ -168,7 +162,7 @@ main = html.Div(
     style=CONTENT_STYLE
 )
 
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(external_stylesheets=[dbc.themes.CERULEAN])
 server = app.server
 
 revenue = sales
@@ -187,14 +181,15 @@ app.layout = html.Div([sidebar,main])
     [Input('submit_button', 'n_clicks')],
     [State('store', 'value'), 
      State('year','value'), 
-     State('start_month', 'value'),
-     State('end_month', 'value')]
+     State('range_month', 'value')]
 )
-def update_hourly_transactions(n_clicks, store, year, start_month, end_month):
+def update_hourly_transactions(n_clicks, store, year, range_month):
+    start_month, end_month = range_month
+
     filtered = sales[sales["store_location"] == store]
     filtered = filtered[filtered["transaction_date"].dt.year == year]
-    filtered = filtered[(shortHand[start_month]+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= shortHand[end_month]+1)]
-    
+    filtered = filtered[(start_month+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= end_month+1)]
+
     # Hourly Transactions
     hourlyTransactions = filtered.groupby(["transaction_date", pd.to_datetime(sales["transaction_time"], format="%H:%M:%S").dt.hour])["transaction_id"].count().reset_index()
     #hourlyTransactions = hourlyTransactions.groupby("transaction_time")["transaction_id"].mean().reset_index()
@@ -208,13 +203,15 @@ def update_hourly_transactions(n_clicks, store, year, start_month, end_month):
     [Input('submit_button', 'n_clicks')],
     [State('store', 'value'), 
      State('year','value'), 
-     State('start_month', 'value'),
-     State('end_month', 'value')]
+     State('range_month', 'value')]
 )
-def update_weekly_transactions(n_clicks, store, year, start_month, end_month):
+def update_weekly_transactions(n_clicks, store, year, range_month):
+
+    start_month, end_month = range_month
+
     filtered = sales[sales["store_location"] == store]
     filtered = filtered[filtered["transaction_date"].dt.year == year]
-    filtered = filtered[(shortHand[start_month]+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= shortHand[end_month]+1)]
+    filtered = filtered[(start_month+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= end_month+1)]
     
     weeklyTransactions = filtered.groupby("transaction_date")["transaction_id"].count().reset_index()
     weeklyTransactions = weeklyTransactions.groupby(weeklyTransactions["transaction_date"].dt.day_name())["transaction_id"].sum().reset_index()
@@ -228,13 +225,14 @@ def update_weekly_transactions(n_clicks, store, year, start_month, end_month):
     [Input('submit_button', 'n_clicks')],
     [State('store', 'value'), 
      State('year','value'), 
-     State('start_month', 'value'),
-     State('end_month', 'value')]
+     State('range_month', 'value')]
 )
-def update_monthly_revenue(n_clicks, store, year, start_month, end_month):
+def update_monthly_revenue(n_clicks, store, year,range_month):
+    start_month, end_month = range_month
+
     filtered = revenue[revenue["store_location"] == store]
     filtered = filtered[filtered["transaction_date"].dt.year == year]
-    filtered = filtered[(shortHand[start_month]+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= shortHand[end_month]+1)]
+    filtered = filtered[(start_month+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= end_month+1)]
     
     # Monthly Revenue
     monthlyRevenue = filtered.groupby(filtered["transaction_date"])["revenue"].sum().reset_index()
@@ -255,13 +253,14 @@ def update_monthly_revenue(n_clicks, store, year, start_month, end_month):
     [Input('submit_button', 'n_clicks')],
     [State('store', 'value'), 
      State('year','value'), 
-     State('start_month', 'value'),
-     State('end_month', 'value')]
+     State('range_month', 'value')]
 )
-def update_category(n_clicks, store, year, start_month, end_month):
+def update_category(n_clicks, store, year, range_month):
+    start_month, end_month = range_month
+
     filtered = revenue[revenue["store_location"] == store]
     filtered = filtered[filtered["transaction_date"].dt.year == year]
-    filtered = filtered[(shortHand[start_month]+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= shortHand[end_month]+1)]
+    filtered = filtered[(start_month+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= end_month+1)]
     
     # Revenue by category
     revenueByCategory = filtered.groupby("product_category").agg({"transaction_qty":'sum', "revenue": "sum"}).reset_index().sort_values(by=["revenue"], ascending=False)
@@ -275,13 +274,14 @@ def update_category(n_clicks, store, year, start_month, end_month):
     [Input('submit_button', 'n_clicks')],
     [State('store', 'value'), 
      State('year','value'), 
-     State('start_month', 'value'),
-     State('end_month', 'value')]
+     State('range_month', 'value')]
 )
-def update_products(n_clicks, store, year, start_month, end_month):
+def update_products(n_clicks, store, year, range_month):
+    start_month, end_month = range_month
+
     filtered = revenue[revenue["store_location"] == store]
     filtered = filtered[filtered["transaction_date"].dt.year == year]
-    filtered = filtered[(shortHand[start_month]+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= shortHand[end_month]+1)]
+    filtered = filtered[(start_month+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= end_month+1)]
     
     revenueByProduct = filtered.groupby("product_type").agg({"transaction_qty":'sum', "revenue": "sum"}).reset_index().sort_values(by=["revenue"], ascending=False)
     revenueByProduct.columns = ["Product", "Total Quantity Sold", "Revenue"]
@@ -294,13 +294,15 @@ def update_products(n_clicks, store, year, start_month, end_month):
     [Input('submit_button', 'n_clicks')],
     [State('store', 'value'), 
      State('year','value'), 
-     State('start_month', 'value'),
-     State('end_month', 'value')]
+     State('range_month', 'value')]
 )
-def update_revenue(n_clicks, store, year, start_month, end_month):
+def update_revenue(n_clicks, store, year, range_month):
+
+    start_month, end_month = range_month
+
     filtered = revenue[revenue["store_location"] == store]
     filtered = filtered[filtered["transaction_date"].dt.year == year]
-    filtered = filtered[(shortHand[start_month]+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= shortHand[end_month]+1)]
+    filtered = filtered[(start_month+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= end_month+1)]
     return "$" + f'{round(filtered['revenue'].sum(),2):,}'
 
 @callback(
@@ -308,15 +310,16 @@ def update_revenue(n_clicks, store, year, start_month, end_month):
     [Input('submit_button', 'n_clicks')],
     [State('store', 'value'), 
      State('year','value'), 
-     State('start_month', 'value'),
-     State('end_month', 'value')]
+     State('range_month', 'value')]
 )
-def update_transactions(n_clicks, store, year, start_month, end_month):
+def update_transactions(n_clicks, store, year, range_month):
+    start_month, end_month = range_month
+
     filtered = revenue[revenue["store_location"] == store]
     filtered = filtered[filtered["transaction_date"].dt.year == year]
-    filtered = filtered[(shortHand[start_month]+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= shortHand[end_month]+1)]
+    filtered = filtered[(start_month+1 <= filtered["transaction_date"].dt.month ) & (filtered["transaction_date"].dt.month <= end_month+1)]
     return f'{round(filtered['transaction_qty'].sum(),0):,}'
 
 if __name__ == '__main__':
     
-    app.run(debug=True)
+    app.run()
