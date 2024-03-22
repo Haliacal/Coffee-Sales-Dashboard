@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project is to present the findings of a coffee shop based on their sales. This includes what products would be sold the most, revenue genenerated, what days and hours were most popular and more. This website was created in dash which is a web application developing framework built on flask. This is coded in python and mainly focuses on visualisation of data. The website is then hosted on Heroku for its "relatively" easy setup and very help community.
+This project is to present the findings of a coffee shop based on their sales. This includes what products would be sold the most, revenue genenerated, what days and hours were most popular and more. This website was created in dash which is a web application developing framework built on flask. This is coded in python and mainly focuses on visualisation of data. The website is then hosted on Heroku for its "relatively" easy setup and very help community. To see the dashboard live you can view it [Here](https://mavern-coffee-sales-c19579aad7c0.herokuapp.com)
 
 - [Dataset](#dataset)
 - [Project Phases](#project-phases)
