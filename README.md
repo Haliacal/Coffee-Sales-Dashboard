@@ -56,5 +56,5 @@ Main packages:
 - Dash
 - Plotly
 
-![Dashboard](Dashboard.jpg)
+
 
